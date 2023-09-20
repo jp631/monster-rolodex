@@ -1,38 +1,42 @@
-import React, { Component } from 'react';
-import { CardList } from '../components/card-list/card-list.component';
-import {SearchBox } from '../components/search-box/search-box.component'
+import React, { useState, useEffect } from 'react';
+import CardList from '../components/CardList';
+import SearchBox from '../components/SearchBox';
+import Scroll from '../components/Scroll';
 import './App.css';
 
-class App extends Component {
-  constructor(){
-    super();
-    this.state ={
-      monsters: [],
-      searchField: ''
-    }
-  }
-  componentDidMount(){
-    fetch('https://jsonplaceholder.typicode.com/users')
-    .then(response => response.json())
-    .then(users => this.setState({monsters: users}));
-  }
-  render(){
-       const { monsters, searchField} = this.state;
-       const filteredMonsters = monsters.filter(monster =>
-            monster.name.toLowerCase().includes(searchField.toLowerCase())
-            )
-    return (
-      <div className="App">
-      <h1 id="title"> Monster Rolodex </h1>
-      <SearchBox
-      placeholder = 'Search Monsters'
-       handleChange ={e => this.setState({searchField: e.target.value})}
-      />
 
-      <CardList monsters = {filteredMonsters} />
+function App() {
+  const [robots, setRobots] = useState([])
+  const [searchfield, setSearchfield] = useState('')
+  const [count, setCount] = useState(0) // for demo purposes
+
+  useEffect(()=> {
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then(response=> response.json())
+      .then(users => {setRobots(users)});
+    // console.log(count)
+  },[]) // if you add count, only run if count changes.
+
+  const onSearchChange = (event) => {
+    setSearchfield(event.target.value)
+  }
+
+  const filteredRobots = robots.filter(robot =>{
+    return robot.name.toLowerCase().includes(searchfield.toLowerCase());
+  })
+
+  return !robots.length ?
+    <h1>Loading</h1> :
+    (
+      <div className='tc'>
+        <h1 className='f1'>RoboFriends</h1>
+        <button onClick={()=>setCount(count+1)}>Click Me!</button>
+        <SearchBox searchChange={onSearchChange}/>
+        <Scroll>
+          <CardList robots={filteredRobots} />
+        </Scroll>
       </div>
     );
-  }
 }
 
 export default App;
